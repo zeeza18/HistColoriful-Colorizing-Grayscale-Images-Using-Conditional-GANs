@@ -248,8 +248,8 @@ HISTCOLORIFUL/
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/HISTCOLORIFUL.git
-cd HISTCOLORIFUL
+git clone https://github.com/zeeza18/HistColoriful-Colorizing-Grayscale-Images-Using-Conditional-GANs.git
+cd HistColoriful-Colorizing-Grayscale-Images-Using-Conditional-GANs
 ```
 
 ### 2️⃣ Create Virtual Environment
@@ -599,5 +599,4 @@ SOFTWARE.
 Made with ❤️ using PyTorch, FastAPI, and lots of ☕
 
 </div>
-
 
