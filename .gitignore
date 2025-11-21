@@ -35,6 +35,7 @@ pip-wheel-metadata/
 
 # Jupyter
 .ipynb_checkpoints/
+*.ipynb
 *.nbconvert.ipynb
 
 # Logs / temp files
@@ -49,6 +50,7 @@ Thumbs.db
 *.pth
 *.pt
 *.onnx
+model/*.pt
 runs/
 checkpoints/
 model_outputs/
