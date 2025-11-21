@@ -1,0 +1,1198 @@
+﻿<!-- static/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Colorization - Classical vs Deep Learning</title>
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at top left, #ffd166, #ff7b00 30%, transparent 55%),
+                        radial-gradient(circle at bottom right, #06d6a0, #1b9aaa 35%, transparent 60%),
+                        #030b16;
+            color: #0f172a;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 30px 90px rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .hero {
+            position: relative;
+            padding: 60px 50px;
+            background: linear-gradient(135deg, #ff7b00, #ff2259, #8a2be2);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.7;
+        }
+
+        .hero-glow-one {
+            top: -80px;
+            right: 40px;
+            background: #ffe66d;
+        }
+
+        .hero-glow-two {
+            bottom: -90px;
+            left: 20px;
+            background: #6ed1ff;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero .eyebrow {
+            font-size: 0.85rem;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.05em;
+        }
+
+        .hero .hero-lead {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            max-width: 560px;
+            margin-bottom: 22px;
+            opacity: 0.95;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.17);
+            padding: 12px 20px;
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-stat .stat-number {
+            font-size: 1.7rem;
+            font-weight: 600;
+            display: block;
+        }
+
+        .hero-stat .stat-label {
+            font-size: 0.8rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .page-shell {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .walkthrough {
+            background: #0f172a;
+            color: #f8fafc;
+            border-radius: 28px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .walkthrough::after {
+            content: '';
+            position: absolute;
+            inset: 40px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+
+        .walkthrough h2 {
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 18px 20px;
+            min-height: 140px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+        }
+
+        .step-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .step-card p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .step-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.12);
+            margin-bottom: 10px;
+        }
+
+        .upload-section {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: 0 30px 45px rgba(15, 23, 42, 0.18);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .upload-inner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            align-items: stretch;
+        }
+
+        .drop-area {
+            position: relative;
+            border-radius: 32px;
+            padding: 36px 30px;
+            min-height: 280px;
+            color: #f8fafc;
+            text-align: center;
+            cursor: pointer;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f172a, #111827 60%, #151e34);
+            box-shadow: 0 25px 50px rgba(2, 6, 23, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .drop-area::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border-radius: 45%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.35), transparent 65%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .drop-area.has-file::after,
+        .drop-area.dragover::after {
+            opacity: 1;
+        }
+
+        .drop-area.has-file {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 60px rgba(14, 116, 144, 0.6), inset 0 0 0 1px rgba(22, 160, 133, 0.5);
+        }
+
+        .drop-area.dragover {
+            border: 2px solid transparent;
+            transform: translateY(-6px);
+            box-shadow: 0 30px 60px rgba(255, 123, 0, 0.6), inset 0 0 0 2px rgba(255, 123, 0, 0.5);
+        }
+
+        .drop-aurora {
+            position: absolute;
+            inset: -30%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent 70%);
+            animation: auroraRotate 8s linear infinite;
+            filter: blur(12px);
+        }
+
+        .drop-illustration {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            border-radius: 24px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, #10b981, #06b6d4, #3b82f6);
+            box-shadow: 0 18px 35px rgba(16, 185, 129, 0.5);
+            animation: floatIcon 4s ease-in-out infinite;
+        }
+
+        .drop-illustration span {
+            font-size: 2rem;
+        }
+
+        .drop-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #e0f2fe;
+        }
+
+        .drop-subtitle {
+            font-size: 0.95rem;
+            color: #bae6fd;
+            margin-bottom: 14px;
+        }
+
+        .drop-actions {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .drop-chip {
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #baefff;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 6px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .drop-guidelines {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .reference-drop {
+            border-radius: 28px;
+            padding: 26px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(254, 249, 255, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 18px;
+            box-shadow: 0 30px 60px rgba(255, 255, 255, 0.25), 0 20px 40px rgba(15, 23, 42, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reference-drop::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 28px;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 60%);
+        }
+
+        .reference-drop:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 35px 70px rgba(15, 23, 42, 0.2);
+        }
+
+        .reference-preview {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #0f172a, #111827);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .reference-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            z-index: 1;
+        }
+
+        .reference-text h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #0f172a;
+        }
+
+        .reference-text p {
+            font-size: 0.85rem;
+            color: #475569;
+            margin: 0;
+        }
+
+        .reference-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            z-index: 1;
+        }
+
+        .reference-name {
+            font-size: 0.88rem;
+            color: #475569;
+        }
+
+        @keyframes auroraRotate {
+            0% {
+                transform: rotate(0deg);
+                opacity: 0.2;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: rotate(360deg);
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes floatIcon {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .ghost-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 999px;
+            padding: 10px 28px;
+            border: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0b1324;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .ghost-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .preview-panel {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(243, 244, 255, 0.7));
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 25px 40px rgba(15, 23, 42, 0.15);
+        }
+
+        .preview-label {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .preview-frame {
+            position: relative;
+            border-radius: 22px;
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            min-height: 240px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0f172a, #1d2333 60%, #273145);
+            color: #cbd5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .preview-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 22px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .preview-frame.loaded img {
+            opacity: 1;
+        }
+
+        #previewOverlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            text-align: center;
+            padding: 10px 40px;
+            line-height: 1.4;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.3));
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+
+        .preview-frame.loaded #previewOverlay {
+            opacity: 0;
+        }
+
+        .preview-tip {
+            font-size: 0.85rem;
+            color: #475569;
+            text-align: center;
+        }
+
+        .reference-drop {
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), #f1f5f9);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .reference-drop.has-file {
+            border-color: #ff7b00;
+        }
+
+        .reference-text h3 {
+            font-size: 1rem;
+            color: #0f172a;
+        }
+
+        .reference-text p {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .reference-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .reference-name {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .method-section {
+            background: #010a16;
+            border-radius: 28px;
+            padding: 30px;
+            color: white;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .method-heading h2 {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+        }
+
+        .method-heading p {
+            font-size: 0.95rem;
+            opacity: 0.7;
+        }
+
+        .methods-grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .method-card {
+            padding: 18px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .method-card.selected {
+            background: linear-gradient(135deg, rgba(255, 123, 0, 0.1), rgba(255, 214, 143, 0.35));
+            border-color: #ffcb77;
+            box-shadow: 0 20px 50px rgba(255, 123, 0, 0.2);
+        }
+
+        .method-card .badge {
+            align-self: flex-start;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .method-card .badge-multi {
+            background: rgba(22, 160, 133, 0.25);
+            color: #a9f0e4;
+        }
+
+        .method-card h3 {
+            font-size: 1.1rem;
+        }
+
+        .method-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .method-meta {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            opacity: 0.7;
+        }
+
+        .action-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .helper-text {
+            font-size: 0.9rem;
+            color: #475569;
+            text-align: center;
+            max-width: 360px;
+        }
+
+        .button {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 42px;
+            border-radius: 999px;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #06d6a0, #1b9aaa);
+            color: #fff;
+            box-shadow: 0 20px 35px rgba(6, 214, 160, 0.35);
+            transition: transform 0.3s ease;
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .button span:last-child {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .status-badge {
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            background: #fffacd;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            border: 1px solid rgba(15, 23, 42, 0.2);
+        }
+
+        .status-badge.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-badge {
+            background: #ffe3e3;
+            color: #c53030;
+        }
+
+        .results-section {
+            background: #f8fafc;
+            border-radius: 32px;
+            padding: 32px;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 25px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .results-heading h2 {
+            font-size: 1.6rem;
+            margin-bottom: 4px;
+        }
+
+        .results-heading p {
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .results-grid {
+            margin-top: 22px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 24px;
+            padding: 0;
+            overflow: hidden;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .result-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .result-card .result-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 14px 18px;
+            color: #0f172a;
+        }
+
+        .result-info {
+            padding: 14px 18px 20px;
+        }
+
+        .result-info p {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .result-info strong {
+            font-size: 0.85rem;
+            color: #1b9aaa;
+        }
+
+        .placeholder-card {
+            padding: 28px;
+            border-radius: 20px;
+            background: #e2e8f0;
+            text-align: center;
+            color: #475569;
+            border: 1px dashed rgba(15, 23, 42, 0.2);
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                padding: 40px 30px;
+            }
+
+            .page-shell {
+                padding: 30px;
+            }
+
+            .action-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                border-radius: 24px;
+            }
+
+            .hero {
+                padding: 32px 22px;
+            }
+
+            .method-card {
+                min-height: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+        <div class="container">
+            <header class="hero">
+                <div class="hero-glow hero-glow-one"></div>
+                <div class="hero-glow hero-glow-two"></div>
+                <div class="hero-content">
+                    <p class="eyebrow">Colorization Studio</p>
+                    <h1>Image Colorization</h1>
+                    <p class="hero-lead">Blend classical heuristics with deep learning while previewing every refinement inside a single modern workspace.</p>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="stat-number">4x</span>
+                            <span class="stat-label">COLOR PATHS</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="stat-number">256×256</span>
+                            <span class="stat-label">WORKING RESOLUTION</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="stat-number">Realtime</span>
+                            <span class="stat-label">PREVIEW</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="page-shell">
+                <section class="walkthrough">
+                    <h2>Process in three quick steps</h2>
+                    <div class="steps-grid">
+                        <article class="step-card">
+                            <span class="step-pill">Step 1</span>
+                            <h3>Upload or drag a grayscale image</h3>
+                            <p>Drop it anywhere in the canvas and see the preview refresh instantly on the right.</p>
+                        </article>
+                        <article class="step-card">
+                            <span class="step-pill">Step 2</span>
+                            <h3>Choose one method or run all</h3>
+                            <p>Select histogram, K-means, Gaussian, GAN, or run the entire suite for a side-by-side comparison.</p>
+                        </article>
+                        <article class="step-card">
+                            <span class="step-pill">Step 3</span>
+                            <h3>Inspect modern color results</h3>
+                            <p>Every output drops below with detailed runtime stats so you can evaluate the best approach.</p>
+                        </article>
+                    </div>
+                </section>
+                <section class="upload-section">
+                    <div class="upload-inner">
+                <div class="drop-area" id="dropZone">
+                    <div class="drop-aurora"></div>
+                    <div class="drop-illustration">
+                        <span>⬆</span>
+                    </div>
+                    <p class="drop-title">Drop or click to upload grayscale</p>
+                    <p class="drop-subtitle">PNG · JPG · TIFF · max 5 MB</p>
+                    <div class="drop-actions">
+                        <button type="button" class="ghost-btn" id="openGrayscale">Browse files</button>
+                        <span class="drop-chip">Instant preview</span>
+                    </div>
+                    <ul class="drop-guidelines">
+                        <li>Auto 256×256</li>
+                        <li>Lossless pipeline</li>
+                        <li>Live preview</li>
+                    </ul>
+                    <input type="file" id="grayscaleInput" class="file-input" accept="image/*">
+                </div>
+                        <div class="preview-panel">
+                            <p class="preview-label">Live preview</p>
+                            <div class="preview-frame" id="previewFrame">
+                                <img id="previewImage" alt="Awaiting grayscale preview">
+                                <div id="previewOverlay">
+                                    Drag anywhere or click browse to reveal your photo
+                                </div>
+                            </div>
+                            <p class="preview-tip">Every preview is standardized to 256×256 before touching the pipeline.</p>
+                        </div>
+                    </div>
+                <div class="reference-drop" id="referenceDrop">
+                        <div class="reference-preview" id="referencePreview">🖼️</div>
+                        <div class="reference-text">
+                            <h3>Reference image</h3>
+                            <p>Required for classical transfers; GAN works without it.</p>
+                        </div>
+                        <div class="reference-actions">
+                            <button type="button" class="ghost-btn" id="openReference">Add reference</button>
+                            <span id="referenceLabel" class="reference-name">No reference added</span>
+                        </div>
+                        <input type="file" id="referenceInput" class="file-input" accept="image/*">
+                    </div>
+                </section>
+                <section class="method-section">
+                    <div class="method-heading">
+                        <h2>Choose a method</h2>
+                        <p>Pick the pipeline you want or run all four for the complete comparison.</p>
+                    </div>
+                    <div class="methods-grid">
+                        <article class="method-card" data-method="histogram">
+                            <div class="badge">Classical</div>
+                            <h3>Histogram Matching</h3>
+                            <p>Quick tone alignment aligning histograms to your reference.</p>
+                            <span class="method-meta">Reference required · Instant</span>
+                        </article>
+                        <article class="method-card selected" data-method="kmeans">
+                            <div class="badge">Classical</div>
+                            <h3>K-means Transfer</h3>
+                            <p>Clusters carry color palettes for sharper tonal control.</p>
+                            <span class="method-meta">Predictive · Touches reference</span>
+                        </article>
+                        <article class="method-card" data-method="gaussian">
+                            <div class="badge">Classical</div>
+                            <h3>Gaussian + Local</h3>
+                            <p>Blends local neighborhoods for smooth gradients.</p>
+                            <span class="method-meta">Spatial awareness · Reference needed</span>
+                        </article>
+                        <article class="method-card" data-method="gan">
+                            <div class="badge">Deep Learning</div>
+                            <h3>GAN (Lambda=50)</h3>
+                            <p>Deep generator colors without requiring additional images.</p>
+                            <span class="method-meta">Auto-color · Reference optional</span>
+                        </article>
+                        <article class="method-card" data-method="all">
+                            <div class="badge badge-multi">All Methods</div>
+                            <h3>Run the suite</h3>
+                            <p>Sequentially invoke each classical pipeline plus the GAN for a true comparison.</p>
+                            <span class="method-meta">Reference required · Multi-pass</span>
+                        </article>
+                    </div>
+                </section>
+                <div class="action-row">
+                    <button id="colorizeBtn" class="button" type="button" disabled>
+                        <span>Colorize image</span>
+                        <span>Preview your results below</span>
+                    </button>
+                    <p class="helper-text" id="methodHint">Upload a grayscale image to activate colorization.</p>
+                </div>
+                <div id="loading" class="status-badge"></div>
+                <div id="error" class="status-badge error-badge"></div>
+                <section class="results-section" id="results">
+                    <div class="results-heading">
+                        <h2>Results</h2>
+                        <p>Each card shows the selected method and runtime stats.</p>
+                    </div>
+                    <div class="results-grid" id="resultsGrid">
+                        <div class="placeholder-card">
+                            <p>Results will appear here after running colorization.</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <script>
+            const classicalMethods = ['histogram', 'kmeans', 'gaussian'];
+            const methodTitles = {
+                histogram: 'Histogram Matching',
+                kmeans: 'K-means Transfer',
+                gaussian: 'Gaussian + Local',
+                gan: 'GAN (Lambda=50)'
+            };
+            let grayscaleFile = null;
+            let referenceFile = null;
+            let previewUrl = '';
+            let referenceUrl = '';
+            let selectedMethod = 'kmeans';
+
+            const dropZone = document.getElementById('dropZone');
+            const referenceDrop = document.getElementById('referenceDrop');
+            const previewFrame = document.getElementById('previewFrame');
+            const previewImage = document.getElementById('previewImage');
+            const referenceLabel = document.getElementById('referenceLabel');
+            const referencePreview = document.getElementById('referencePreview');
+            const colorizeBtn = document.getElementById('colorizeBtn');
+            const methodHint = document.getElementById('methodHint');
+            const loadingBadge = document.getElementById('loading');
+            const errorBadge = document.getElementById('error');
+            const resultsGrid = document.getElementById('resultsGrid');
+
+            const grayscaleInput = document.getElementById('grayscaleInput');
+            const referenceInput = document.getElementById('referenceInput');
+            const methodCards = document.querySelectorAll('.method-card');
+
+            function handleFileChange(file, type) {
+                if (!file) return;
+                if (type === 'grayscale') {
+                    grayscaleFile = file;
+                    updatePreview(file);
+                    dropZone.classList.add('has-file');
+                } else {
+                    referenceFile = file;
+                    referenceDrop.classList.add('has-file');
+                    referenceLabel.textContent = file.name;
+                    referencePreview.textContent = '✅';
+                    referencePreview.style.boxShadow = '0 12px 25px rgba(16, 185, 129, 0.6)';
+                    if (referenceUrl) {
+                        URL.revokeObjectURL(referenceUrl);
+                    }
+                    referenceUrl = URL.createObjectURL(file);
+                }
+                updateButton();
+            }
+
+            function updatePreview(file) {
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                }
+                previewUrl = URL.createObjectURL(file);
+                previewImage.src = previewUrl;
+                previewFrame.classList.add('loaded');
+            }
+
+            function bindDropArea(element, type) {
+                element.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    element.classList.add('dragover');
+                });
+                element.addEventListener('dragleave', () => {
+                    element.classList.remove('dragover');
+                });
+                element.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    element.classList.remove('dragover');
+                    const file = event.dataTransfer?.files?.[0];
+                    if (file) {
+                        handleFileChange(file, type);
+                    }
+                });
+            }
+
+            grayscaleInput.addEventListener('change', (event) => handleFileChange(event.target.files[0], 'grayscale'));
+            referenceInput.addEventListener('change', (event) => handleFileChange(event.target.files[0], 'reference'));
+            document.getElementById('openGrayscale').addEventListener('click', (event) => {
+                event.stopPropagation();
+                grayscaleInput.click();
+            });
+            document.getElementById('openReference').addEventListener('click', (event) => {
+                event.stopPropagation();
+                referenceInput.click();
+            });
+            bindDropArea(dropZone, 'grayscale');
+            bindDropArea(referenceDrop, 'reference');
+
+            dropZone.addEventListener('click', (event) => {
+                if (!event.target.closest('.ghost-btn')) {
+                    grayscaleInput.click();
+                }
+            });
+
+            referenceDrop.addEventListener('click', (event) => {
+                if (!event.target.closest('.ghost-btn')) {
+                    referenceInput.click();
+                }
+            });
+
+            methodCards.forEach(card => {
+                card.addEventListener('click', () => selectMethod(card.dataset.method));
+            });
+
+            function selectMethod(method) {
+                selectedMethod = method;
+                methodCards.forEach(card => {
+                    card.classList.toggle('selected', card.dataset.method === method);
+                });
+                updateButton();
+            }
+
+            function updateButton() {
+                const needsReference = selectedMethod === 'all' || classicalMethods.includes(selectedMethod);
+                if (grayscaleFile && (!needsReference || referenceFile)) {
+                    colorizeBtn.disabled = false;
+                    methodHint.textContent = needsReference
+                        ? 'Reference ready — classical models can run.'
+                        : 'Ready — GAN works without a reference.';
+                } else if (grayscaleFile && needsReference && !referenceFile) {
+                    colorizeBtn.disabled = true;
+                    methodHint.textContent = 'Reference required to run classical color transfers.';
+                } else {
+                    colorizeBtn.disabled = true;
+                    methodHint.textContent = 'Upload a grayscale image to enable colorization.';
+                }
+            }
+
+            function showLoading(message) {
+                loadingBadge.textContent = message;
+                loadingBadge.classList.add('active');
+            }
+
+            function hideError() {
+                errorBadge.textContent = '';
+                errorBadge.classList.remove('active');
+            }
+
+            function showError(message) {
+                errorBadge.textContent = message;
+                errorBadge.classList.add('active');
+            }
+
+            function displayResults(results) {
+                const cards = [];
+
+                if (previewUrl) {
+                    cards.push(`
+                        <article class="result-card">
+                            <div class="result-label">Original Grayscale</div>
+                            <img src="${previewUrl}" alt="Original grayscale image">
+                            <div class="result-info">
+                                <p>Input image</p>
+                            </div>
+                        </article>
+                    `);
+                }
+
+                if (referenceFile && referenceUrl) {
+                    cards.push(`
+                        <article class="result-card">
+                            <div class="result-label">Reference Image</div>
+                            <img src="${referenceUrl}" alt="Reference image">
+                            <div class="result-info">
+                                <p>Color reference</p>
+                            </div>
+                        </article>
+                    `);
+                }
+
+                results.forEach(result => {
+                    const methodName = methodTitles[result.method] || result.method;
+                    cards.push(`
+                        <article class="result-card">
+                            <div class="result-label">${methodName}</div>
+                            <img src="${result.colorized_image}" alt="${methodName}">
+                            <div class="result-info">
+                                <p>Processing time: <strong>${result.processing_time}s</strong></p>
+                                <p>Method: ${result.method}</p>
+                            </div>
+                        </article>
+                    `);
+                });
+
+                resultsGrid.innerHTML = cards.length
+                    ? cards.join('')
+                    : '<div class="placeholder-card"><p>No results yet.</p></div>';
+            }
+
+            async function colorizeImage() {
+                const targets = selectedMethod === 'all'
+                    ? ['histogram', 'kmeans', 'gaussian', 'gan']
+                    : [selectedMethod];
+
+                hideError();
+                colorizeBtn.disabled = true;
+
+                try {
+                    const collected = [];
+                    for (let i = 0; i < targets.length; i++) {
+                        const method = targets[i];
+                        const requiresReference = classicalMethods.includes(method);
+                        if (requiresReference && !referenceFile) {
+                            throw new Error('Reference image required for classical color transfers.');
+                        }
+
+                        showLoading(`Processing ${methodTitles[method] || method} (${i + 1}/${targets.length})`);
+
+                        const formData = new FormData();
+                        formData.append('method', method);
+                        formData.append('grayscale_file', grayscaleFile);
+                        if (referenceFile) {
+                            formData.append('reference_image', referenceFile);
+                        }
+
+                        const response = await fetch('/api/colorize', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const payload = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(payload.detail || 'Colorization failed');
+                        }
+
+                        collected.push(payload);
+                    }
+
+                    displayResults(collected);
+                } catch (error) {
+                    showError(error.message);
+                } finally {
+                    loadingBadge.classList.remove('active');
+                    colorizeBtn.disabled = false;
+                    updateButton();
+                }
+            }
+
+            colorizeBtn.addEventListener('click', colorizeImage);
+
+            selectMethod('kmeans');
+            updateButton();
+        </script>
+</body>
+</html>
+
